@@ -1,0 +1,15 @@
+node_modules/
+*.prg
+*.iq
+*.prg.debug.xml
+bin/
+build/
+developer_key*
+*.der
+*.pem
+.env
+watch/*/resources/config/
+ios/build/
+ios/*.xcodeproj/xcuserdata/
+DerivedData/
+.DS_Store

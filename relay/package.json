@@ -1,0 +1,14 @@
+{
+  "name": "ares-garmin-relay",
+  "version": "0.1.0",
+  "description": "Relay that turns Ares Alpha (or simulated) team data into a compact feed for Garmin Connect IQ watches",
+  "type": "module",
+  "main": "src/main.js",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node src/main.js",
+    "sim": "ARES_SOURCE=sim node src/main.js",
+    "test": "node --test test/"
+  },
+  "license": "MIT"
+}
