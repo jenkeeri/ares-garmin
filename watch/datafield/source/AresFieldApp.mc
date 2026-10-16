@@ -59,6 +59,9 @@ class AresFieldView extends WatchUi.DataField {
             var d = loc.toDegrees();
             _me = [(d[0] * 1000000).toNumber(), (d[1] * 1000000).toNumber()];
         }
+        if (_me == null) {
+            _me = simPosition();
+        }
         var h = info.currentHeading;
         _heading = h != null ? Math.toDegrees(h).toFloat() : null;
         if (_me != null) {
@@ -66,6 +69,19 @@ class AresFieldView extends WatchUi.DataField {
         } else {
             _link.tick(null, null);
         }
+    }
+
+    (:debug)
+    private function simPosition() as Array<Number>? {
+        if (AresBuild.SIM_LAT_E6 == 0 && AresBuild.SIM_LON_E6 == 0) {
+            return null;
+        }
+        return [AresBuild.SIM_LAT_E6, AresBuild.SIM_LON_E6];
+    }
+
+    (:release)
+    private function simPosition() as Array<Number>? {
+        return null;
     }
 
     function onAlert(level as Number) as Void {

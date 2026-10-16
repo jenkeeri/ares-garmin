@@ -136,11 +136,12 @@ class AresRadar {
         var dot = big ? 9 : 5;
         // Draw lower-priority kinds first so friendlies end up on top.
         var order = [AresProto.K_HAZARD, AresProto.K_WAYPOINT, AresProto.K_BASE, AresProto.K_OBJECTIVE, AresProto.K_ENEMY, AresProto.K_FRIEND];
+        var labels = [] as Array<Array>;
         if (pos != null) {
             var sinR = Math.sin(Math.toRadians(rot)).toFloat();
             var cosR = Math.cos(Math.toRadians(rot)).toFloat();
             for (var o = 0; o < order.size(); o++) {
-                for (var i = 0; i < n; i++) {
+                for (var i = n - 1; i >= 0; i--) {
                     var en = ents[i];
                     if (en[AresProto.I_KIND] != order[o]) {
                         continue;
@@ -164,11 +165,11 @@ class AresRadar {
                     }
                     _symbol(dc, cx + sx.toNumber(), cy + sy.toNumber(), dot, en, col, clamped);
                     if (big && showLabels && !clamped) {
-                        dc.setColor(col == C_HIT ? 0x777777 : C_TEXT, Graphics.COLOR_TRANSPARENT);
-                        dc.drawText(cx + sx.toNumber(), cy + sy.toNumber() + dot + 1, Graphics.FONT_XTINY, _shortLabel(en), Graphics.TEXT_JUSTIFY_CENTER);
+                        labels.add([cx + sx.toNumber(), cy + sy.toNumber() + dot + 1, _shortLabel(en), col == C_HIT ? 0x777777 : C_TEXT]);
                     }
                 }
             }
+            _drawLabels(dc, labels);
         }
 
         // Own position marker
@@ -186,6 +187,33 @@ class AresRadar {
         } else if (pos == null || link.statusText().length() > 0) {
             dc.setColor(C_SUPPORT, Graphics.COLOR_TRANSPARENT);
             dc.drawText(cx, cy + r / 3, Graphics.FONT_XTINY, pos == null ? "NO GPS" : link.statusText(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        }
+    }
+
+    //! Labels were collected lowest priority first; place them in reverse so friendlies win,
+    //! and drop any label that would overlap one already drawn.
+    private function _drawLabels(dc as Graphics.Dc, labels as Array<Array>) as Void {
+        var h = dc.getFontHeight(Graphics.FONT_XTINY);
+        var placed = [] as Array<Number>;
+        for (var i = labels.size() - 1; i >= 0; i--) {
+            var lb = labels[i];
+            var x = lb[0] as Number;
+            var y = lb[1] as Number;
+            var txt = lb[2] as String;
+            var hw = dc.getTextWidthInPixels(txt, Graphics.FONT_XTINY) / 2 + 1;
+            var hit = false;
+            for (var j = 0; j < placed.size(); j += 4) {
+                if (x - hw < placed[j + 2] && x + hw > placed[j] && y < placed[j + 3] && y + h > placed[j + 1]) {
+                    hit = true;
+                    break;
+                }
+            }
+            if (hit) {
+                continue;
+            }
+            placed.addAll([x - hw, y, x + hw, y + h]);
+            dc.setColor(lb[3] as Number, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(x, y, Graphics.FONT_XTINY, txt, Graphics.TEXT_JUSTIFY_CENTER);
         }
     }
 
