@@ -29,6 +29,7 @@ native activity (data field), with a separate watch app + Garmin map as a fallba
 | Radar data field (AresRadar) | `watch/datafield/` | builds (debug + release), verified end-to-end in simulator |
 | Ares Map watch app | `watch/app/` | builds (debug + release), verified in simulator (see below) |
 | Build script | `scripts/build.sh` | done; compiles relay URL/key into `AresBuild.mc` |
+| README, watch setup, screenshots | `README.md`, `docs/WATCH_SETUP.md`, `docs/images/` | done (screenshots from simulator) |
 
 Watch app IDs: data field `4865da54310044768ef2196020fe5408`,
 watch app `14a5fd12e1b144399ab7d68630a6d98b`.
@@ -112,9 +113,7 @@ recovers. Not yet verified on a physical watch.
 1. Sideload the field and the Ares Map app to the physical fēnix 8 and verify them through
    Garmin Connect Mobile (needs the relay reachable over public HTTPS); check the main
    menu (long-press UP) and FIT recording there.
-2. `docs/WATCH_SETUP.md`: sideload `.prg` to `GARMIN/APPS` (OpenMTP on Mac), add the
-   data field to an activity (1-field layout), relay hosting options.
-3. iOS companion app `ios/` (SwiftUI + Connect IQ SDK, replies to watch `poll` messages).
-4. `docs/ARES_REVERSE_ENGINEERING.md`: capture Ares traffic with Proxyman/mitmproxy,
+2. iOS companion app `ios/` (SwiftUI + Connect IQ SDK, replies to watch `poll` messages).
+3. `docs/ARES_REVERSE_ENGINEERING.md`: capture Ares traffic with Proxyman/mitmproxy,
    then implement `fetchSnapshot()` in `relay/src/sources/ares.js`.
-5. `docs/ARCHITECTURE.md` and README quick start.
+4. `docs/ARCHITECTURE.md` (README already covers the overview and quick start).
