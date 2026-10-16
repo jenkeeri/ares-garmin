@@ -1,0 +1,13 @@
+<strings>
+    <string id="SetRelayUrl">Relay URL override (empty = built-in)</string>
+    <string id="SetRelayKey">Relay key override (empty = built-in)</string>
+    <string id="TransportDefault">Built-in default</string>
+    <string id="SetTransport">Data source</string>
+    <string id="TransportRelay">Relay (internet)</string>
+    <string id="TransportPhone">Ares Bridge iPhone app</string>
+    <string id="SetPoll">Update interval s (0 = built-in)</string>
+    <string id="SetHeadingUp">Heading up</string>
+    <string id="SetRange">Radar range</string>
+    <string id="RangeAuto">Auto</string>
+    <string id="SetVibrate">Vibrate on orders / medic</string>
+</strings>

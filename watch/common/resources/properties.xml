@@ -1,0 +1,10 @@
+<properties>
+    <!-- Empty / -1 / 0 mean "use the default compiled in by scripts/build.sh" (AresBuild). -->
+    <property id="relayUrl" type="string"></property>
+    <property id="relayKey" type="string"></property>
+    <property id="transport" type="number">-1</property>
+    <property id="pollSeconds" type="number">0</property>
+    <property id="headingUp" type="boolean">true</property>
+    <property id="fixedRange" type="number">0</property>
+    <property id="vibrate" type="boolean">true</property>
+</properties>
