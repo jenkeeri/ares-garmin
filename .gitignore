@@ -13,3 +13,4 @@ ios/build/
 ios/*.xcodeproj/xcuserdata/
 DerivedData/
 .DS_Store
+watch/build-config/

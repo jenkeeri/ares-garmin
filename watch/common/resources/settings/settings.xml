@@ -1,0 +1,34 @@
+<settings>
+    <setting propertyKey="@Properties.relayUrl" title="@Strings.SetRelayUrl">
+        <settingConfig type="alphaNumeric" />
+    </setting>
+    <setting propertyKey="@Properties.relayKey" title="@Strings.SetRelayKey">
+        <settingConfig type="alphaNumeric" />
+    </setting>
+    <setting propertyKey="@Properties.transport" title="@Strings.SetTransport">
+        <settingConfig type="list">
+            <listEntry value="-1">@Strings.TransportDefault</listEntry>
+            <listEntry value="0">@Strings.TransportRelay</listEntry>
+            <listEntry value="1">@Strings.TransportPhone</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.pollSeconds" title="@Strings.SetPoll">
+        <settingConfig type="numeric" min="0" max="60" />
+    </setting>
+    <setting propertyKey="@Properties.headingUp" title="@Strings.SetHeadingUp">
+        <settingConfig type="boolean" />
+    </setting>
+    <setting propertyKey="@Properties.fixedRange" title="@Strings.SetRange">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.RangeAuto</listEntry>
+            <listEntry value="100">100 m</listEntry>
+            <listEntry value="200">200 m</listEntry>
+            <listEntry value="500">500 m</listEntry>
+            <listEntry value="1000">1 km</listEntry>
+            <listEntry value="2000">2 km</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.vibrate" title="@Strings.SetVibrate">
+        <settingConfig type="boolean" />
+    </setting>
+</settings>
