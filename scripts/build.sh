@@ -14,7 +14,8 @@
 #                 only; lets the simulator show the radar without Activity Data playback)
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-[ -f "$ROOT/.env" ] && set -a && . "$ROOT/.env" && set +a
+# ARES_NO_DOTENV=1: caller already loaded .env and passes explicit values.
+if [ "${ARES_NO_DOTENV:-0}" != 1 ] && [ -f "$ROOT/.env" ]; then set -a; . "$ROOT/.env"; set +a; fi
 
 WHAT="${1:-all}"
 DEVICE="${2:-fenix847mm}"

@@ -34,6 +34,9 @@ same key. To use a different path, set `DEV_KEY`.
 
 ## 3. Relay over public HTTPS
 
+For a hardware test, `scripts/field-test.sh` does steps 3 and 4 in one command (relay,
+quick tunnel, health check, device build). See [FIELD_TEST.md](FIELD_TEST.md).
+
 The watch reaches the relay through Garmin Connect on the phone. That path only allows
 publicly trusted HTTPS, so plain `http://` or self-signed certificates fail. You can
 use either:

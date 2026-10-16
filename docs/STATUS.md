@@ -29,6 +29,10 @@ native activity (data field), with a separate watch app + Garmin map as a fallba
 | Radar data field (AresRadar) | `watch/datafield/` | builds (debug + release), verified end-to-end in simulator |
 | Ares Map watch app | `watch/app/` | builds (debug + release), verified in simulator (see below) |
 | Build script | `scripts/build.sh` | done; compiles relay URL/key into `AresBuild.mc` |
+| Field-test runner | `scripts/field-test.sh`, `docs/FIELD_TEST.md` | done; relay + quick tunnel + device build in one command, verified end-to-end on the Mac |
+| Feed hardening | `watch/common/source/AresFeed.mc` | malformed/oversized entities and messages are dropped or clamped; verified in simulator against a deliberately broken relay (no crash) |
+| Readable link errors | `watch/common/source/AresLink.mc` | status shows `LABEL code` (NO PHONE, TIMEOUT, BAD KEY, RELAY ERR, ...); -402/-403 shrink the requested entity count |
+| Tap-safe recording | `watch/app/source/AresRadarView.mc` | only the physical START key toggles recording; screen taps are ignored (verified in simulator) |
 | README, watch setup, screenshots | `README.md`, `docs/WATCH_SETUP.md`, `docs/images/` | done (screenshots from simulator) |
 
 Watch app IDs: data field `4865da54310044768ef2196020fe5408`,
@@ -103,17 +107,27 @@ Simulator notes:
 
 ## Open issue (start here)
 
-No known blocking issue. The earlier "field does not poll" report was caused by the
-environment (field not running / plain-HTTP relay rejected by the simulator), not by the
-polling logic: with HTTPS the link polls at `POLL_SECONDS`, backs off on errors and
-recovers. Not yet verified on a physical watch.
+No known blocking issue in the simulator. **Nothing has been tested on a physical watch
+yet**; the next step is the hardware field test.
+
+Findings from the simulator (2026-10-16):
+
+- A dead or stopped quick tunnel reaches the watch as `-400`, because Cloudflare's HTML
+  error page is not JSON. It does not arrive as 530. The watch shows it as `RELAY ERR`.
+- On the touch fēnix 8, a screen tap and the START key both arrive as `onSelect`.
+  - `onTap` returning true does not stop the tap from reaching `onSelect`.
+  - `onKey` is not called for START at all.
+  - START does produce `onKeyPressed(KEY_ENTER)` first, so the radar delegate only
+    toggles recording when `onSelect` follows a KEY_ENTER press within 1.5 s.
+  - Still to verify on hardware.
 
 ## Next steps
 
-1. Sideload the field and the Ares Map app to the physical fēnix 8 and verify them through
-   Garmin Connect Mobile (needs the relay reachable over public HTTPS); check the main
-   menu (long-press UP) and FIT recording there.
-2. iOS companion app `ios/` (SwiftUI + Connect IQ SDK, replies to watch `poll` messages).
-3. `docs/ARES_REVERSE_ENGINEERING.md`: capture Ares traffic with Proxyman/mitmproxy,
+1. **Hardware field test** on the fēnix 8 AMOLED 47mm, following
+   [FIELD_TEST.md](FIELD_TEST.md): `scripts/field-test.sh`, sideload both `.prg`, work
+   through the checklist and record the results here.
+2. Fix whatever the field test finds; only then start on visuals.
+3. iOS companion app `ios/` (SwiftUI + Connect IQ SDK, replies to watch `poll` messages).
+4. `docs/ARES_REVERSE_ENGINEERING.md`: capture Ares traffic with Proxyman/mitmproxy,
    then implement `fetchSnapshot()` in `relay/src/sources/ares.js`.
-4. `docs/ARCHITECTURE.md` (README already covers the overview and quick start).
+5. `docs/ARCHITECTURE.md` (README already covers the overview and quick start).

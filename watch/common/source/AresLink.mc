@@ -147,6 +147,10 @@ class AresLink {
 
     private function _fail(code as Number) as Void {
         lastError = code;
+        // Response too large / out of memory: ask for fewer entities next time.
+        if ((code == -402 || code == -403) && _maxEntities > 8) {
+            _maxEntities = _maxEntities * 2 / 3;
+        }
         if (_failures < 10) {
             _failures++;
         }
@@ -161,16 +165,27 @@ class AresLink {
             var age = feed.linkAge();
             return age < 0 ? "CONNECTING" : "";
         }
-        if (lastError == -104 || lastError == -2) {
-            return "NO PHONE";
+        var c = lastError;
+        var t = "ERR";
+        if (c == -104 || c == -2 || c == -3 || c == -4) {
+            t = "NO PHONE";
+        } else if (c == -300) {
+            t = "TIMEOUT";
+        } else if (c == 401 || c == 403) {
+            t = "BAD KEY";
+        } else if (c == -1001) {
+            t = "NEED HTTPS";
+        } else if (c == -402 || c == -403) {
+            t = "TOO BIG";
+        } else if (c == -400 || c == -1002) {
+            // Non-JSON reply; with a quick tunnel this usually means the tunnel/relay is down.
+            t = "RELAY ERR";
+        } else if (c == 404 || c == 502 || c == 503 || c == 530 || c == 1033) {
+            t = "RELAY DOWN";
+        } else if (c == -101) {
+            t = "BUSY";
         }
-        if (lastError == -300) {
-            return "TIMEOUT";
-        }
-        if (lastError == 401) {
-            return "BAD KEY";
-        }
-        return "ERR " + lastError;
+        return t + " " + c;
     }
 }
 

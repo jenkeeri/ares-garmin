@@ -45,6 +45,9 @@ class AresFeed {
     var bannerPrio as Number = 0;
     var bannerAt as Number = 0;
 
+    const MAX_ENTITIES = 40;
+    const MAX_MESSAGES = 8;
+
     private var _knownMsgIds as Array<Number> = [] as Array<Number>;
     private var _medicIds as Array<Number> = [] as Array<Number>;
 
@@ -70,13 +73,11 @@ class AresFeed {
             return AresProto.ALERT_NONE;
         }
         var alert = AresProto.ALERT_NONE;
-        var e = data.get("e");
-        entities = (e instanceof Array) ? e as Array<Array> : [] as Array<Array>;
+        entities = _cleanEntities(data.get("e"));
         receivedAt = now;
         alert = _checkMedics();
 
-        var m = data.get("m");
-        messages = (m instanceof Array) ? m as Array<Array> : [] as Array<Array>;
+        messages = _cleanMessages(data.get("m"));
         var firstLoad = _knownMsgIds.size() == 0 && seq != 0 && bannerAt == 0;
         var ids = [] as Array<Number>;
         for (var i = messages.size() - 1; i >= 0; i--) {
@@ -99,6 +100,73 @@ class AresFeed {
         }
         _knownMsgIds = ids;
         return alert;
+    }
+
+    //! Payload values are used directly by the drawing code, where a wrong type is a fatal
+    //! (uncatchable) error, so anything malformed is dropped or defaulted here.
+    private function _cleanEntities(raw as Object?) as Array<Array> {
+        var out = [] as Array<Array>;
+        if (!(raw instanceof Array)) {
+            return out;
+        }
+        for (var i = 0; i < raw.size() && out.size() < MAX_ENTITIES; i++) {
+            var en = raw[i];
+            if (!(en instanceof Array) || en.size() < 6) {
+                continue;
+            }
+            en = en as Array<Object?>;
+            var id = AresFeed.toNum(en[AresProto.I_ID], null);
+            var lat = AresFeed.toNum(en[AresProto.I_LAT], null);
+            var lon = AresFeed.toNum(en[AresProto.I_LON], null);
+            if (id == null || lat == null || lon == null || lat > 90000000 || lat < -90000000 || lon > 180000000 || lon < -180000000) {
+                continue;
+            }
+            var label = en.size() > AresProto.I_LABEL ? en[AresProto.I_LABEL] : null;
+            out.add([id, AresFeed.toNum(en[AresProto.I_KIND], AresProto.K_WAYPOINT) as Number, AresFeed.toNum(en[AresProto.I_STATE], 0) as Number, lat, lon,
+                     _clamp(AresFeed.toNum(en[AresProto.I_AGE], 0) as Number, 0, 864000), AresFeed.toStr(label, 12)]);
+        }
+        return out;
+    }
+
+    private function _cleanMessages(raw as Object?) as Array<Array> {
+        var out = [] as Array<Array>;
+        if (!(raw instanceof Array)) {
+            return out;
+        }
+        for (var i = 0; i < raw.size() && out.size() < MAX_MESSAGES; i++) {
+            var m = raw[i];
+            if (!(m instanceof Array) || m.size() < 4) {
+                continue;
+            }
+            m = m as Array<Object?>;
+            var id = AresFeed.toNum(m[0], null);
+            if (id == null || m[3] == null) {
+                continue;
+            }
+            out.add([id, _clamp(AresFeed.toNum(m[1], 0) as Number, 0, 864000), _clamp(AresFeed.toNum(m[2], 0) as Number, 0, AresProto.ALERT_URGENT),
+                     AresFeed.toStr(m[3], 120)]);
+        }
+        return out;
+    }
+
+    private function _clamp(v as Number, lo as Number, hi as Number) as Number {
+        return v < lo ? lo : (v > hi ? hi : v);
+    }
+
+    //! Number from a JSON value (Long/Float/Double are truncated), else `dflt`.
+    static function toNum(v as Object?, dflt as Number?) as Number? {
+        if (v instanceof Number) {
+            return v;
+        }
+        if (v instanceof Long || v instanceof Float || v instanceof Double) {
+            return (v as Long or Float or Double).toNumber();
+        }
+        return dflt;
+    }
+
+    static function toStr(v as Object?, maxLen as Number) as String {
+        var s = (v instanceof String ? v : (v == null ? "" : v.toString())) as String;
+        return s.length() > maxLen ? s.substring(0, maxLen) as String : s;
     }
 
     //! Alert when a friendly newly requests a medic.

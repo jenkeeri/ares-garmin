@@ -80,9 +80,15 @@ with `cd relay && npm test`.
 
 | Screen | START | UP / DOWN | BACK | Long-press UP (menu) |
 |---|---|---|---|---|
-| Radar | Start or pause recording | Zoom in / out | Activity menu while recording, otherwise exit | Map, messages, record, heading-up, auto range |
+| Radar | Start or pause recording (screen taps are ignored) | Zoom in / out | Activity menu while recording, otherwise exit | Map, messages, record, heading-up, auto range |
 | Map | Browse mode (pan/zoom) | — | Leave browse mode / back to radar | — |
 | Messages | — | Scroll | Back to radar | — |
+
+## Testing on the watch
+
+`scripts/field-test.sh` starts the relay and a public HTTPS tunnel, then builds the
+`.prg` files for the fēnix 8 47mm. The steps and checklist are in
+[docs/FIELD_TEST.md](docs/FIELD_TEST.md).
 
 ## Status
 

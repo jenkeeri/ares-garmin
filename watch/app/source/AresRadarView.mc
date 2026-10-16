@@ -1,5 +1,6 @@
 import Toybox.Graphics;
 import Toybox.Lang;
+import Toybox.System;
 import Toybox.WatchUi;
 
 //! Main page: full-screen radar plus a recording indicator.
@@ -31,9 +32,24 @@ class AresRadarDelegate extends WatchUi.BehaviorDelegate {
         BehaviorDelegate.initialize();
     }
 
+    private var _enterAt as Number = -100000;
+
+    //! Remember physical START presses; a screen tap never produces one.
+    function onKeyPressed(evt as WatchUi.KeyEvent) as Boolean {
+        if (evt.getKey() == WatchUi.KEY_ENTER) {
+            _enterAt = System.getTimer();
+        }
+        return false;
+    }
+
+    //! Both START and screen taps arrive here; only toggle recording when START was just pressed.
     function onSelect() as Boolean {
-        aresState().toggleRecording();
-        WatchUi.requestUpdate();
+        var now = System.getTimer();
+        if (now - _enterAt < 1500) {
+            _enterAt = -100000;
+            aresState().toggleRecording();
+            WatchUi.requestUpdate();
+        }
         return true;
     }
 
