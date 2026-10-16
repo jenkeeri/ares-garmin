@@ -54,7 +54,7 @@ class AresLink {
         }
         _pollMs = (poll < 2 ? 2 : poll) * 1000;
         _lastReqAt = 0;
-        AresLog.log("settings url=" + _url + " transport=" + transport + " pollMs=" + _pollMs);
+        AresDebug.log("settings url=" + _url + " transport=" + transport + " pollMs=" + _pollMs);
     }
 
     function isConfigured() as Boolean {
@@ -88,7 +88,7 @@ class AresLink {
         }
         _lastReqAt = now;
         _inFlightSince = now;
-        AresLog.log("request transport=" + transport + " q=" + feed.seq + " pos=" + (latE6 != null));
+        AresDebug.log("request transport=" + transport + " q=" + feed.seq + " pos=" + (latE6 != null));
         if (transport == TRANSPORT_PHONE) {
             var msg = { "c" => "poll", "q" => feed.seq, "n" => _maxEntities } as Dictionary<Communications.TransmitKeyType, Communications.TransmitType>;
             if (latE6 != null && lonE6 != null) {
@@ -114,7 +114,7 @@ class AresLink {
 
     function onWebResponse(code as Number, data as Dictionary or String or Null) as Void {
         _inFlightSince = 0;
-        AresLog.log("response code=" + code);
+        AresDebug.log("response code=" + code);
         if (code == 200 && data instanceof Dictionary) {
             _ok(data);
         } else {

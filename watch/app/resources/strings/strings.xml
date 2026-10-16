@@ -1,0 +1,16 @@
+<strings>
+    <string id="AppName">Ares Map</string>
+    <string id="MenuTitle">Ares</string>
+    <string id="MenuMap">Map</string>
+    <string id="MenuMessages">Messages</string>
+    <string id="MenuRecordStart">Start activity</string>
+    <string id="MenuRecordPause">Pause activity</string>
+    <string id="MenuRecordResume">Resume activity</string>
+    <string id="MenuHeadingUp">Heading up</string>
+    <string id="MenuRangeAuto">Range: auto</string>
+    <string id="ExitTitle">Activity</string>
+    <string id="ExitResume">Resume</string>
+    <string id="ExitSave">Save &amp; exit</string>
+    <string id="ExitDiscard">Discard &amp; exit</string>
+    <string id="NoMessages">No messages</string>
+</strings>

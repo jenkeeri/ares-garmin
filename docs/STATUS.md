@@ -27,10 +27,11 @@ native activity (data field), with a separate watch app + Garmin map as a fallba
 | Relay + simulator + debug map | `relay/` | done, 10 tests pass (`npm test`) |
 | Shared watch core | `watch/common/` | done |
 | Radar data field (AresRadar) | `watch/datafield/` | builds (debug + release), verified end-to-end in simulator |
+| Ares Map watch app | `watch/app/` | builds (debug + release), verified in simulator (see below) |
 | Build script | `scripts/build.sh` | done; compiles relay URL/key into `AresBuild.mc` |
 
 Watch app IDs: data field `4865da54310044768ef2196020fe5408`,
-watch app (planned) `14a5fd12e1b144399ab7d68630a6d98b`.
+watch app `14a5fd12e1b144399ab7d68630a6d98b`.
 
 ## Local environment
 
@@ -50,6 +51,15 @@ watch app (planned) `14a5fd12e1b144399ab7d68630a6d98b`.
 - Verified end-to-end in the simulator (fenix847mm): data field → cloudflared HTTPS →
   local relay; HTTP 200 every ~5 s, sequence advances, entities/labels/objective header
   and order banner render; memory ~19.8 / 124.4 kB.
+- `RELEASE=1 scripts/build.sh all` builds both `.iq` packages.
+- Watch app in the simulator (fenix847mm, memory ~26–33 / 763 kB):
+  - Radar view polls and renders like the field.
+  - START toggles recording (red dot), BACK during a session opens Resume/Save/Discard.
+  - Map page (`MapTrackView`) shows OSM map with coloured entity markers + labels;
+    START enters browse (pan/zoom), BACK recenters.
+  - Messages page lists feed messages with age and priority colour.
+  - Not verified: main menu (long-press UP cannot be produced by a simulator click; the
+    map and messages pages were tested by temporarily making them the initial view).
 
 ### Previous workstation
 
@@ -70,7 +80,7 @@ RELAY_URL=https://<x>.trycloudflare.com RELAY_KEY=devkey scripts/build.sh datafi
 SDK="$(cat ~/Library/Application\ Support/Garmin/ConnectIQ/current-sdk.cfg)"
 "$SDK/bin/connectiq" & "$SDK/bin/monkeydo" build/AresRadar.prg fenix847mm
 # with a debug build, SIM_POS=lat,lon gives the field a fixed position when there is no
-# GPS fix, so the radar renders without Activity Data playback, and AresLog prints
+# GPS fix, so the radar renders without Activity Data playback, and AresDebug.log prints
 # settings/request/response lines to the monkeydo console:
 #   RELAY_URL=... RELAY_KEY=devkey SIM_POS=56.9496,24.1052 DEBUG=1 scripts/build.sh datafield
 ```
@@ -83,7 +93,12 @@ Simulator notes:
 - A refused connection (relay not running) is reported to the app as `404`.
 - Re-running `monkeydo` against an already running simulator sometimes loads nothing and
   prints no console output; quit the simulator and start it again.
-- `AresLog` (`watch/common/source/AresLog.mc`) is compiled out of release builds.
+- `AresDebug` (`watch/common/source/AresDebug.mc`: `log`, `simPosition`) is compiled out of release builds.
+- `MapView`/`MapTrackView` must get `setMapVisibleArea` in `initialize`; without it the app
+  crashes with an empty-stack "Unexpected Type Error" before the first `onUpdate`.
+- The compiler warning "Cannot access internal symbol MapView.onUpdate" also appears for
+  the SDK MapSample and is harmless.
+- Watch app: `scripts/build.sh app`, then `monkeydo build/AresMap.prg fenix847mm`.
 
 ## Open issue (start here)
 
@@ -94,13 +109,12 @@ recovers. Not yet verified on a physical watch.
 
 ## Next steps
 
-1. Sideload the field to the physical fēnix 8 and verify it through Garmin Connect Mobile
-   (needs the relay reachable over public HTTPS).
-2. Watch app `watch/app` (Ares Map): radar view, `MapTrackView` with markers,
-   messages list, menu (record activity, range, heading-up, transport).
-3. `docs/WATCH_SETUP.md`: sideload `.prg` to `GARMIN/APPS` (OpenMTP on Mac), add the
+1. Sideload the field and the Ares Map app to the physical fēnix 8 and verify them through
+   Garmin Connect Mobile (needs the relay reachable over public HTTPS); check the main
+   menu (long-press UP) and FIT recording there.
+2. `docs/WATCH_SETUP.md`: sideload `.prg` to `GARMIN/APPS` (OpenMTP on Mac), add the
    data field to an activity (1-field layout), relay hosting options.
-4. iOS companion app `ios/` (SwiftUI + Connect IQ SDK, replies to watch `poll` messages).
-5. `docs/ARES_REVERSE_ENGINEERING.md`: capture Ares traffic with Proxyman/mitmproxy,
+3. iOS companion app `ios/` (SwiftUI + Connect IQ SDK, replies to watch `poll` messages).
+4. `docs/ARES_REVERSE_ENGINEERING.md`: capture Ares traffic with Proxyman/mitmproxy,
    then implement `fetchSnapshot()` in `relay/src/sources/ares.js`.
-6. `docs/ARCHITECTURE.md` and README quick start.
+5. `docs/ARCHITECTURE.md` and README quick start.
